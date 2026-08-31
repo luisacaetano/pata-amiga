@@ -2,9 +2,15 @@ import '../modelos/animal.dart';
 import 'donos_mock.dart';
 
 // Dados de exemplo usados enquanto o aplicativo não conversa com a API.
-const List<Animal> animaisMock = [
+// As datas são contadas a partir de agora, e não fixas, para o feed não
+// parecer parado no dia em que alguém abrir o aplicativo.
+final DateTime _agora = DateTime.now();
+DateTime _haDias(int dias) => _agora.subtract(Duration(days: dias));
+
+final List<Animal> animaisMock = [
   Animal(
     nome: 'Dora',
+    publicadoEm: _haDias(2),
     especie: 'Cachorro',
     raca: 'Chihuahua',
     sexo: 'fêmea',
@@ -26,6 +32,7 @@ const List<Animal> animaisMock = [
   ),
   Animal(
     nome: 'Thor',
+    publicadoEm: _haDias(9),
     especie: 'Cachorro',
     raca: 'Border Collie',
     sexo: 'macho',
@@ -46,6 +53,7 @@ const List<Animal> animaisMock = [
   ),
   Animal(
     nome: 'Mel',
+    publicadoEm: _haDias(0),
     especie: 'Cachorro',
     raca: 'Jack Russell',
     sexo: 'fêmea',
@@ -66,6 +74,7 @@ const List<Animal> animaisMock = [
   ),
   Animal(
     nome: 'Simba',
+    publicadoEm: _haDias(34),
     especie: 'Gato',
     raca: 'Sem raça definida',
     sexo: 'macho',
@@ -87,6 +96,7 @@ const List<Animal> animaisMock = [
   ),
   Animal(
     nome: 'Fred',
+    publicadoEm: _haDias(17),
     especie: 'Gato',
     raca: 'Sem raça definida',
     sexo: 'macho',
@@ -107,6 +117,7 @@ const List<Animal> animaisMock = [
   ),
   Animal(
     nome: 'Bidu',
+    publicadoEm: _haDias(1),
     especie: 'Cachorro',
     raca: 'Poodle',
     sexo: 'macho',
@@ -125,6 +136,7 @@ const List<Animal> animaisMock = [
   ),
   Animal(
     nome: 'Nina',
+    publicadoEm: _haDias(5),
     especie: 'Cachorro',
     raca: 'Yorkshire',
     sexo: 'fêmea',
@@ -143,6 +155,7 @@ const List<Animal> animaisMock = [
   ),
   Animal(
     nome: 'Amora',
+    publicadoEm: _haDias(12),
     especie: 'Gato',
     raca: 'Siamês',
     sexo: 'fêmea',
@@ -161,6 +174,7 @@ const List<Animal> animaisMock = [
   ),
   Animal(
     nome: 'Filhote sem nome',
+    publicadoEm: _haDias(3),
     especie: 'Cachorro',
     raca: 'Golden Retriever',
     sexo: 'macho',
@@ -179,6 +193,7 @@ const List<Animal> animaisMock = [
   ),
   Animal(
     nome: 'Marie',
+    publicadoEm: _haDias(21),
     especie: 'Gato',
     raca: 'Sem raça definida',
     sexo: 'fêmea',

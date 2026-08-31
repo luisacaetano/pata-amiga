@@ -42,13 +42,16 @@ class _FeedAdocaoState extends State<FeedAdocao> {
 
   List<Animal> get _animaisVisiveis {
     final termo = _busca.trim().toLowerCase();
-    return animaisMock.where((animal) {
+    final encontrados = animaisMock.where((animal) {
       if (animal.tipo != _abaAtual) return false;
       if (termo.isEmpty) return true;
       return animal.nome.toLowerCase().contains(termo) ||
           animal.raca.toLowerCase().contains(termo) ||
           animal.especie.toLowerCase().contains(termo);
     }).toList();
+    // O feed é cronológico decrescente: o que foi publicado por último abre
+    encontrados.sort((a, b) => b.publicadoEm.compareTo(a.publicadoEm));
+    return encontrados;
   }
 
   @override
