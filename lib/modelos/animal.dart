@@ -42,6 +42,10 @@ class Animal {
   final Dono dono;
   final String foto;
   final DateTime publicadoEm;
+  // Salva a localização do aparelho quando a pessoa tocou no botão de localização
+  // Fica vazio quando o endereço foi digitado à mão
+  final double? latitude;
+  final double? longitude;
 
   Animal({
     required this.nome,
@@ -63,7 +67,12 @@ class Animal {
     required this.dono,
     this.foto = '',
     required this.publicadoEm,
+    this.latitude,
+    this.longitude,
   });
+
+  // Os mapas só conseguem desenhar o animal quando as duas coordenadas existem
+  bool get temPonto => latitude != null && longitude != null;
 
   // Descrição curta do animal, exibida embaixo do nome no card do feed.
   String get resumo =>

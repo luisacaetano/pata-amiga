@@ -1,5 +1,10 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../modelos/animal.dart';
@@ -53,6 +58,7 @@ class _CadastroAnimalState extends State<CadastroAnimal> {
   TipoRegistro? _tipo;
   bool _tentouCadastrar = false;
   final _seletorDeFotos = ImagePicker();
+  bool _buscandoLocalizacao = false;
   final List<XFile> _fotos = [];
   bool _castrado = false;
   bool _vacinado = false;
@@ -74,6 +80,78 @@ class _CadastroAnimalState extends State<CadastroAnimal> {
       _tentouCadastrar && campo.text.trim().isEmpty;
 
   bool _naoEscolhido(String? valor) => _tentouCadastrar && valor == null;
+
+  Future<void> _usarMinhaLocalizacao() async {
+    if (_buscandoLocalizacao) return;
+    setState(() => _buscandoLocalizacao = true);
+
+    try {
+      if (!await Geolocator.isLocationServiceEnabled()) {
+        _avisar('Ligue a localização do aparelho para usar esta opção.');
+        return;
+      }
+
+      var permissao = await Geolocator.checkPermission();
+      if (permissao == LocationPermission.denied) {
+        permissao = await Geolocator.requestPermission();
+      }
+      if (permissao == LocationPermission.denied ||
+          permissao == LocationPermission.deniedForever) {
+        _avisar('Sem permissão de localização. Insira o endereço manualmente.');
+        return;
+      }
+
+      final posicao = await Geolocator.getCurrentPosition(
+        locationSettings: _ajustesDeLocalizacao(),
+      );
+      final lugares = await Geocoding()
+          .placemarkFromCoordinates(posicao.latitude, posicao.longitude);
+      if (lugares.isEmpty) {
+        _avisar('Não achei o endereço deste ponto. Insira o endereço manualmente.');
+        return;
+      }
+
+      if (!mounted) return;
+      setState(() => _localizacao.text = _enderecoDe(lugares.first));
+    } on TimeoutException {
+      _avisar('A localização demorou demais. Insira o endereço manualmente.');
+    } on Exception {
+      _avisar('Não foi possível encontrar a localização. Insira o endereço manualmente.');
+    } finally {
+      if (mounted) setState(() => _buscandoLocalizacao = false);
+    }
+  }
+
+  // O provedor do Google exige o serviço de precisão ligado e um diálogo a mais
+  LocationSettings _ajustesDeLocalizacao() {
+    const prazo = Duration(seconds: 15);
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return AndroidSettings(forceLocationManager: true, timeLimit: prazo);
+    }
+    return const LocationSettings(timeLimit: prazo);
+  }
+
+  // O rótulo do campo pede rua, bairro e cidade, nesta ordem
+  String _enderecoDe(Placemark lugar) {
+    final partes = <String>[];
+    void juntar(String? parte) {
+      final texto = parte?.trim() ?? '';
+      if (texto.isNotEmpty && !partes.contains(texto)) partes.add(texto);
+    }
+
+    juntar(lugar.thoroughfare);
+    juntar(lugar.subThoroughfare);
+    juntar(lugar.subLocality);
+    juntar(lugar.locality);
+    return partes.join(', ');
+  }
+
+  void _avisar(String mensagem) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(mensagem)));
+  }
 
   Future<void> _adicionarFotos() async {
     final vagas = _maximoDeFotos - _fotos.length;
@@ -330,8 +408,16 @@ class _CadastroAnimalState extends State<CadastroAnimal> {
                     exemplo: 'Rua, Bairro e Cidade',
                     comErro: _faltando(_localizacao),
                     acao: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.my_location, size: 20),
+                      onPressed:
+                          _buscandoLocalizacao ? null : _usarMinhaLocalizacao,
+                      // Icone de buscando localização
+                      icon: _buscandoLocalizacao
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.my_location, size: 20),
                       color: Cores.principal,
                       tooltip: 'Usar minha localização',
                     ),

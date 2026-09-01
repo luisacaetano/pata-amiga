@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>O Pata Amiga usa suas fotos para você anexar imagens do animal no cadastro.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>O Pata Amiga usa sua localização para preencher o endereço do animal no cadastro.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
