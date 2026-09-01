@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../modelos/animal.dart';
 import '../tema/cores.dart';
@@ -28,6 +29,14 @@ String _tituloDoLugar(TipoRegistro? tipo) => tipo == TipoRegistro.perdido
 
 const _nomePadrao = 'Sem nome';
 const _maximoDeFotos = 5;
+// Aviso de quantidade de imagens selecionadas
+const _porExtenso = {2: 'duas', 3: 'três', 4: 'quatro', 5: 'cinco'};
+const _ladoDaMiniatura = 84.0;
+const _alvoDeToque = 44.0;
+// Badge de remover foto
+const _desenhoDoBadge = 20.0;
+const _quantoSobrevoa = 6.0;
+const _folgaDaTira = _quantoSobrevoa + (_alvoDeToque - _desenhoDoBadge) / 2;
 
 const _especies = ['Cachorro', 'Gato'];
 const _portes = ['pequeno', 'médio', 'grande'];
@@ -43,7 +52,8 @@ class CadastroAnimal extends StatefulWidget {
 class _CadastroAnimalState extends State<CadastroAnimal> {
   TipoRegistro? _tipo;
   bool _tentouCadastrar = false;
-  final List<String> _fotos = [];
+  final _seletorDeFotos = ImagePicker();
+  final List<XFile> _fotos = [];
   bool _castrado = false;
   bool _vacinado = false;
   bool _vermifugado = false;
@@ -64,6 +74,55 @@ class _CadastroAnimalState extends State<CadastroAnimal> {
       _tentouCadastrar && campo.text.trim().isEmpty;
 
   bool _naoEscolhido(String? valor) => _tentouCadastrar && valor == null;
+
+  Future<void> _adicionarFotos() async {
+    final vagas = _maximoDeFotos - _fotos.length;
+    if (vagas <= 0) return;
+
+    try {
+      final escolhidas = await _seletorDeFotos.pickMultiImage(
+        imageQuality: 85,
+        requestFullMetadata: false,
+      );
+      if (!mounted || escolhidas.isEmpty) return;
+
+      // A galeria do sistema não respeita o limite de seleção,
+      // então guardamos só as primeiras 5 fotos
+      setState(() => _fotos.addAll(escolhidas.take(vagas)));
+      if (escolhidas.length > vagas) {
+        _avisarQueSobrou(escolhidas.length, vagas);
+      }
+    } on PlatformException {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não foi possível abrir a galeria neste aparelho.'),
+        ),
+      );
+    }
+  }
+
+  void _avisarQueSobrou(int escolhidas, int vagas) {
+    final quantas =
+        vagas == 1 ? 'a primeira' : 'as ${_porExtenso[vagas] ?? vagas} primeiras';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Você escolheu $escolhidas fotos e cabem $vagas. Guardei $quantas.',
+        ),
+      ),
+    );
+  }
+
+  void _reordenarFotos(int indiceAntigo, int novoIndice) {
+    setState(() {
+      final foto = _fotos.removeAt(indiceAntigo);
+      novoIndice = novoIndice.clamp(0, _fotos.length);
+      _fotos.insert(novoIndice, foto);
+    });
+  }
+
+  void _removerFoto(int indice) => setState(() => _fotos.removeAt(indice));
 
   @override
   void dispose() {
@@ -114,7 +173,12 @@ class _CadastroAnimalState extends State<CadastroAnimal> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _Cartao(
-              child: _BlocoDeFotos(fotos: _fotos, aoAdicionar: () {}),
+              child: _BlocoDeFotos(
+                fotos: _fotos,
+                aoAdicionar: _adicionarFotos,
+                aoReordenar: _reordenarFotos,
+                aoRemover: _removerFoto,
+              ),
             ),
             _Cartao(
               child: Column(
@@ -336,10 +400,17 @@ class _CadastroAnimalState extends State<CadastroAnimal> {
 }
 
 class _BlocoDeFotos extends StatelessWidget {
-  final List<String> fotos;
+  final List<XFile> fotos;
   final VoidCallback aoAdicionar;
+  final ReorderCallback aoReordenar;
+  final ValueChanged<int> aoRemover;
 
-  const _BlocoDeFotos({required this.fotos, required this.aoAdicionar});
+  const _BlocoDeFotos({
+    required this.fotos,
+    required this.aoAdicionar,
+    required this.aoReordenar,
+    required this.aoRemover,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -360,28 +431,57 @@ class _BlocoDeFotos extends StatelessWidget {
                 final lado = restricoes.maxWidth * 0.62;
                 return SizedBox(
                   width: lado,
-                  child: FotoAnimal(
-                    caminho: fotos.isEmpty ? '' : fotos.first,
-                    altura: lado,
-                  ),
+                  child: fotos.isEmpty
+                      ? FotoAnimal(caminho: '', altura: lado)
+                      : _FotoDaGaleria(arquivo: fotos.first, altura: lado),
                 );
               },
             ),
           ),
         ),
+        const SizedBox(height: 10),
+        const Text(
+          'Você pode escolher até $_maximoDeFotos fotos.',
+          style: TextStyle(fontSize: 12, color: Cores.textoFraco),
+        ),
         if (fotos.isNotEmpty) ...[
           const SizedBox(height: 10),
+          const Text(
+            'A primeira foto é a capa. Segure e arraste para ordenar.',
+            style: TextStyle(fontSize: 12, color: Cores.textoFraco),
+          ),
+          const SizedBox(height: 8),
           SizedBox(
-            height: 72,
-            child: ListView.separated(
+            height: _ladoDaMiniatura + _folgaDaTira,
+            child: ReorderableListView.builder(
               scrollDirection: Axis.horizontal,
+              buildDefaultDragHandles: false,
+              onReorderItem: aoReordenar,
               itemCount: fotos.length < _maximoDeFotos
                   ? fotos.length + 1
                   : fotos.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 10),
-              itemBuilder: (context, indice) => indice == fotos.length
-                  ? _AdicionarFoto(aoTocar: aoAdicionar)
-                  : _Miniatura(caminho: fotos[indice]),
+              itemBuilder: (context, indice) {
+                if (indice == fotos.length) {
+                  return Padding(
+                    key: const ValueKey('adicionar-foto'),
+                    padding: const EdgeInsets.only(right: 10, top: _folgaDaTira),
+                    child: _AdicionarFoto(aoTocar: aoAdicionar),
+                  );
+                }
+
+                return Padding(
+                  key: ValueKey(fotos[indice].path),
+                  padding: const EdgeInsets.only(right: 10, top: _folgaDaTira),
+                  child: ReorderableDelayedDragStartListener(
+                    index: indice,
+                    child: _Miniatura(
+                      arquivo: fotos[indice],
+                      ehCapa: indice == 0,
+                      aoRemover: () => aoRemover(indice),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
           if (fotos.length >= _maximoDeFotos)
@@ -422,13 +522,149 @@ class _AdicionarFoto extends StatelessWidget {
 }
 
 class _Miniatura extends StatelessWidget {
-  final String caminho;
+  final XFile arquivo;
+  final bool ehCapa;
+  final VoidCallback aoRemover;
 
-  const _Miniatura({required this.caminho});
+  const _Miniatura({
+    required this.arquivo,
+    required this.ehCapa,
+    required this.aoRemover,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(width: 72, child: FotoAnimal(caminho: caminho, altura: 72));
+    return SizedBox(
+      width: _ladoDaMiniatura,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned.fill(
+            child: _FotoDaGaleria(arquivo: arquivo, altura: _ladoDaMiniatura),
+          ),
+          if (ehCapa)
+            const Positioned(left: 4, bottom: 4, child: _SeloDeCapa()),
+          Positioned(
+            top: -_folgaDaTira,
+            right: -_folgaDaTira,
+            child: _BotaoDeRemover(aoTocar: aoRemover),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Badge de remover foto 
+class _BotaoDeRemover extends StatelessWidget {
+  final VoidCallback aoTocar;
+
+  const _BotaoDeRemover({required this.aoTocar});
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: 'Remover foto',
+      child: InkResponse(
+        onTap: aoTocar,
+        radius: _alvoDeToque / 2,
+        child: SizedBox(
+          width: _alvoDeToque,
+          height: _alvoDeToque,
+          child: Center(
+            child: Container(
+              width: _desenhoDoBadge,
+              height: _desenhoDoBadge,
+              decoration: BoxDecoration(
+                color: Cores.destaque,
+                shape: BoxShape.circle,
+                border: Border.all(color: Cores.cartao, width: 1.5),
+              ),
+              child: const Icon(
+                Icons.close_rounded,
+                size: 12,
+                color: Cores.cartao,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Selo de imagem de capa para a primeira foto
+class _SeloDeCapa extends StatelessWidget {
+  const _SeloDeCapa();
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Cores.principal,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        child: Text(
+          'Capa',
+          style: TextStyle(
+            color: Cores.cartao,
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FotoDaGaleria extends StatefulWidget {
+  final XFile arquivo;
+  final double altura;
+
+  const _FotoDaGaleria({required this.arquivo, required this.altura});
+
+  @override
+  State<_FotoDaGaleria> createState() => _FotoDaGaleriaState();
+}
+
+class _FotoDaGaleriaState extends State<_FotoDaGaleria> {
+  late Future<Uint8List> _bytes;
+
+  @override
+  void initState() {
+    super.initState();
+    _bytes = widget.arquivo.readAsBytes();
+  }
+
+  @override
+  void didUpdateWidget(_FotoDaGaleria anterior) {
+    super.didUpdateWidget(anterior);
+    if (anterior.arquivo.path != widget.arquivo.path) {
+      _bytes = widget.arquivo.readAsBytes();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Uint8List>(
+      future: _bytes,
+      builder: (context, instantaneo) {
+        if (!instantaneo.hasData) {
+          return FotoAnimal(caminho: '', altura: widget.altura);
+        }
+
+        return ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
+          child: SizedBox(
+            height: widget.altura,
+            width: double.infinity,
+            child: Image.memory(instantaneo.data!, fit: BoxFit.cover),
+          ),
+        );
+      },
+    );
   }
 }
 

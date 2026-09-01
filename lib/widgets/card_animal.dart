@@ -69,6 +69,14 @@ class CardAnimal extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
+                // Há quanto tempo foi publicado, na mesma linha do local
+                Text(
+                  ' · ${animal.publicadoHa(DateTime.now())}',
+                  style: const TextStyle(
+                    color: Cores.textoFraco,
+                    fontSize: 13,
+                  ),
+                ),
               ],
             ),
             // Em perdidos e resgates, onde e quando importa mais que o porte
