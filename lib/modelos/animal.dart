@@ -41,8 +41,13 @@ class Animal {
   final String observacoes;
   final Dono dono;
   final String foto;
+  final DateTime publicadoEm;
+  // Salva a localização do aparelho quando a pessoa tocou no botão de localização
+  // Fica vazio quando o endereço foi digitado à mão
+  final double? latitude;
+  final double? longitude;
 
-  const Animal({
+  Animal({
     required this.nome,
     required this.especie,
     required this.raca,
@@ -61,11 +66,32 @@ class Animal {
     this.observacoes = '',
     required this.dono,
     this.foto = '',
+    required this.publicadoEm,
+    this.latitude,
+    this.longitude,
   });
+
+  // Os mapas só conseguem desenhar o animal quando as duas coordenadas existem
+  bool get temPonto => latitude != null && longitude != null;
 
   // Descrição curta do animal, exibida embaixo do nome no card do feed.
   String get resumo =>
       [sexo, 'porte $porte', idade].map(_comMaiuscula).join(' · ');
+
+  // Há quanto tempo o animal foi publicado, no formato que vai no card.
+  // Compara só o dia, porque a hora não interessa a quem lê o feed.
+  String publicadoHa(DateTime agora) {
+    final hoje = DateTime(agora.year, agora.month, agora.day);
+    final dia = DateTime(publicadoEm.year, publicadoEm.month, publicadoEm.day);
+    final dias = hoje.difference(dia).inDays;
+
+    if (dias <= 0) return 'hoje';
+    if (dias == 1) return 'ontem';
+    if (dias <= 30) return 'há $dias dias';
+
+    final meses = dias ~/ 30;
+    return meses == 1 ? 'há 1 mês' : 'há $meses meses';
+  }
 
   static String _comMaiuscula(String texto) =>
       texto.isEmpty ? texto : texto[0].toUpperCase() + texto.substring(1);

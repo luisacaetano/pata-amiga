@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../dados/animais_mock.dart';
 import '../modelos/animal.dart';
+import '../modelos/dono.dart';
 import '../tema/cores.dart';
+import '../widgets/barra_inferior.dart';
 import '../widgets/card_animal.dart';
-import '../widgets/chip_filtro.dart';
+import '../widgets/escolha_de_tipo.dart';
+import 'cadastro_animal.dart';
 
 class FeedAdocao extends StatefulWidget {
   const FeedAdocao({super.key});
@@ -36,20 +40,18 @@ class _FeedAdocaoState extends State<FeedAdocao> {
     super.dispose();
   }
 
-  // Quantos animais existem em cada aba, independente da pesquisa
-  int _quantidade(TipoRegistro tipo) =>
-      animaisMock.where((animal) => animal.tipo == tipo).length;
-
   List<Animal> get _animaisVisiveis {
     final termo = _busca.trim().toLowerCase();
-    return animaisMock.where((animal) {
+    final encontrados = animaisMock.where((animal) {
       if (animal.tipo != _abaAtual) return false;
       if (termo.isEmpty) return true;
       return animal.nome.toLowerCase().contains(termo) ||
           animal.raca.toLowerCase().contains(termo) ||
-          animal.especie.toLowerCase().contains(termo) ||
-          animal.cor.toLowerCase().contains(termo);
+          animal.especie.toLowerCase().contains(termo);
     }).toList();
+    // O feed é cronológico decrescente: o que foi publicado por último abre
+    encontrados.sort((a, b) => b.publicadoEm.compareTo(a.publicadoEm));
+    return encontrados;
   }
 
   @override
@@ -67,16 +69,7 @@ class _FeedAdocaoState extends State<FeedAdocao> {
 
   // Enquanto a funcionalidade não existe, o toque avisa em vez de não fazer
   // nada, para o usuário saber que o botão não está quebrado
-  void _emBreve() {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        const SnackBar(
-          content: Text('Esta tela entra em uma próxima sprint.'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-  }
+  void _emBreve() => avisarProximaSprint(context);
 
   // Junta os cuidados marcados numa frase só, concordando com o sexo
   String _saude(Animal animal) {
@@ -91,6 +84,32 @@ class _FeedAdocaoState extends State<FeedAdocao> {
         ? itens.first
         : '${itens.sublist(0, itens.length - 1).join(', ')} e ${itens.last}';
     return frase[0].toUpperCase() + frase.substring(1);
+  }
+
+  // Abre a conversa direto no WhatsApp do responsável
+  Future<void> _chamarNoWhatsApp(Animal animal) async {
+    final mensageiro = ScaffoldMessenger.of(context);
+    final texto = Uri.encodeComponent(
+      'Olá! Vi ${animal.nome} no Pata Amiga e queria saber mais.',
+    );
+    final endereco = Uri.parse(
+      'https://wa.me/${animal.dono.numeroNoWhatsApp}?text=$texto',
+    );
+
+    final abriu = await launchUrl(
+      endereco,
+      mode: LaunchMode.externalApplication,
+    );
+    if (!abriu) {
+      mensageiro
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('Não foi possível abrir o WhatsApp neste aparelho.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+    }
   }
 
   Future<void> _compartilhar(Animal animal) async {
@@ -172,7 +191,7 @@ class _FeedAdocaoState extends State<FeedAdocao> {
                   controller: _pesquisa,
                   onChanged: (valor) => setState(() => _busca = valor),
                   decoration: InputDecoration(
-                    hintText: 'pesquisar',
+                    hintText: 'Pesquisar',
                     prefixIcon: const Icon(Icons.search, size: 20),
                     suffixIcon: _busca.isEmpty
                         ? null
@@ -205,22 +224,13 @@ class _FeedAdocaoState extends State<FeedAdocao> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            clipBehavior: Clip.none,
+          Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-            child: Row(
-              children: [
-                for (final tipo in TipoRegistro.values) ...[
-                  ChipFiltro(
-                    rotulo: tipo.rotulo,
-                    quantidade: _quantidade(tipo),
-                    selecionado: _abaAtual == tipo,
-                    aoTocar: () => setState(() => _abaAtual = tipo),
-                  ),
-                  const SizedBox(width: 18),
-                ],
-              ],
+            child: EscolhaDeTipo(
+              escolhido: _abaAtual,
+              aoEscolher: (escolha) => setState(() => _abaAtual = escolha),
+              rotulo: rotuloPlural,
+              fundoDaOpcao: Cores.cartao,
             ),
           ),
           Expanded(
@@ -246,7 +256,7 @@ class _FeedAdocaoState extends State<FeedAdocao> {
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 88),
                     itemCount: _animaisVisiveis.length,
                     itemBuilder: (context, indice) {
                       final animal = _animaisVisiveis[indice];
@@ -255,7 +265,7 @@ class _FeedAdocaoState extends State<FeedAdocao> {
                         curtido: _curtidos.contains(animal.nome),
                         aoCurtir: () => _alternarCurtida(animal),
                         aoCompartilhar: () => _compartilhar(animal),
-                        aoConversar: _emBreve,
+                        aoChamarNoWhatsApp: () => _chamarNoWhatsApp(animal),
                         aoTocar: _emBreve,
                       );
                     },
@@ -263,30 +273,18 @@ class _FeedAdocaoState extends State<FeedAdocao> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Cores.cartao,
-        onTap: (indice) {
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.of(context)
+            .push(MaterialPageRoute(builder: (_) => const CadastroAnimal())),
+        backgroundColor: Cores.principal,
+        foregroundColor: Colors.white,
+        tooltip: 'Cadastrar animal',
+        child: const Icon(Icons.add),
+      ),
+      bottomNavigationBar: BarraInferior(
+        aoTocar: (indice) {
           if (indice != 0) _emBreve();
         },
-        selectedItemColor: Cores.principal,
-        unselectedItemColor: Cores.textoFraco,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.pets), label: 'Adoção'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map_outlined),
-            label: 'Mapa',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.report_outlined),
-            label: 'Reportar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Perfil',
-          ),
-        ],
       ),
     );
   }
