@@ -13,6 +13,7 @@ class DetalhesAnimal extends StatelessWidget {
 
   const DetalhesAnimal({super.key, required this.animal});
 
+  // monta o link do whatsApp e tenta abrir; se não conseguir, avisa na tela
   Future<void> _chamarNoWhatsApp(BuildContext context) async {
     final mensageiro = ScaffoldMessenger.of(context);
     final texto = Uri.encodeComponent(
@@ -73,7 +74,7 @@ class DetalhesAnimal extends StatelessWidget {
             FotoAnimal(caminho: animal.foto, altura: 280),
             const SizedBox(height: 12),
 
-            // Cartão único: nome + selo + tabelas + saúde + contato
+            // cartão: nome + selo + tabelas + saúde + contato
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(14),
@@ -85,6 +86,7 @@ class DetalhesAnimal extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // nome do animal + selo de status (disponível/adotado)
                   Row(
                     children: [
                       Text(
@@ -117,6 +119,8 @@ class DetalhesAnimal extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 14),
+
+                  // grade 2x4: espécie/porte, raça/sexo, idade/peso, cor/cidade.
                   Table(
                     columnWidths: const {
                       0: IntrinsicColumnWidth(),
@@ -137,6 +141,8 @@ class DetalhesAnimal extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 14),
+
+                  // selos de cuidado: só aparece o que for true no animal
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -148,6 +154,8 @@ class DetalhesAnimal extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 14),
+
+                  // responsável, telefone e observações: uma coluna só
                   Table(
                     columnWidths: const {0: IntrinsicColumnWidth()},
                     defaultVerticalAlignment: TableCellVerticalAlignment.top,
@@ -195,7 +203,7 @@ class DetalhesAnimal extends StatelessWidget {
   }
 }
 
-// Uma célula de texto da tabela: se for rótulo, ganha o ":" e o estilo fraco;
+// uma célula de texto da tabela: se for rótulo, ganha o ":" e o estilo fraco,
 // se for valor, fica com o estilo normal e a linha embaixo.
 Widget _celula(String texto, {bool rotulo = false, bool cortar = false}) =>
     Padding(
@@ -223,7 +231,7 @@ Widget _celula(String texto, {bool rotulo = false, bool cortar = false}) =>
             ),
     );
 
-// Uma linha da grade com dois pares rótulo/valor (ex.: espécie e porte)
+// uma linha da grade com dois pares rótulo/valor (ex.: espécie e porte)
 TableRow _linhaTabela(
   String rotulo1,
   String valor1,
@@ -240,11 +248,12 @@ TableRow _linhaTabela(
   );
 }
 
-// Uma linha com um único par rótulo/valor (ex.: responsável)
+// uma linha com um único par rótulo/valor (ex: responsável)
 TableRow _linhaSimples(String rotulo, String valor) {
   return TableRow(children: [_celula(rotulo, rotulo: true), _celula(valor)]);
 }
 
+// selo verde de "cuidado" (castrado/vacinado/vermifugado), com ícone de check
 class _Selo extends StatelessWidget {
   final String texto;
   const _Selo(this.texto);
