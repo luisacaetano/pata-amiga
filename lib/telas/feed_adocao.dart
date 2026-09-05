@@ -12,6 +12,7 @@ import '../widgets/barra_inferior.dart';
 import '../widgets/card_animal.dart';
 import '../widgets/escolha_de_tipo.dart';
 import 'cadastro_animal.dart';
+import 'detalhes_animal.dart';
 
 class FeedAdocao extends StatefulWidget {
   const FeedAdocao({super.key});
@@ -266,7 +267,13 @@ class _FeedAdocaoState extends State<FeedAdocao> {
                         aoCurtir: () => _alternarCurtida(animal),
                         aoCompartilhar: () => _compartilhar(animal),
                         aoChamarNoWhatsApp: () => _chamarNoWhatsApp(animal),
-                        aoTocar: _emBreve,
+                        aoTocar: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => DetalhesAnimal(animal: animal),
+                            ),
+                          );
+                        },
                       );
                     },
                   ),
