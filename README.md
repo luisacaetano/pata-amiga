@@ -175,9 +175,9 @@ Sprint 0, e todas são cadastradas como Issues no Issue Board deste repositório
 
 Patinhas Gals Dev. Os papéis são rotativos e revisados a cada sprint, de modo que
 todas as integrantes passem por todas as funções ao longo do semestre. A divisão
-registrada abaixo é a da Sprint 0.
+registrada abaixo valeu na Sprint 0 e se manteve na Sprint 1.
 
-| Integrante | Papel na Sprint 0 | GitLab |
+| Integrante | Papel nas Sprints 0 e 1 | GitLab |
 |---|---|---|
 | Yasmim Stefane Faria | Tech Lead | @yasmimstefane |
 | Maria Eduarda Siqueira Silva | Product Owner | @Mariyaduarda |
@@ -235,4 +235,4 @@ travada em alguma coisa. Isso substitui a daily presencial de uma squad remota.
 | Sprint | Entrega | Situação |
 |---|---|---|
 | 0 | Kickoff: formação do squad, conceito do produto, backlog e wireframes | Entregue |
-| 1 | Primeiras telas do MVP, backlog no Issue Board e fluxo de Merge Request | Em andamento |
+| 1 | Primeiras telas do MVP, backlog no Issue Board e fluxo de Merge Request | Entregue |
