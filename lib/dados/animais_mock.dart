@@ -25,10 +25,10 @@ final List<Animal> animaisMock = [
     vacinado: true,
     vermifugado: true,
     observacoes:
-        'Convive bem com outros cachorros e já está acostumada com casa. '
-        'Sente frio, precisa de roupinha no inverno.',
+        'Convive bem com outros cachorros e já está acostumada com casa.',
+    necessidadesEspeciais: 'Sente frio e precisa de roupinha no inverno',
     dono: associacaoProtetora,
-    foto: 'assets/animais/dora.jpg',
+    fotos: ['assets/animais/dora.jpg'],
   ),
   Animal(
     nome: 'Thor',
@@ -49,7 +49,7 @@ final List<Animal> animaisMock = [
         'Muito ativo e obediente. Precisa de espaço para correr e de alguém '
         'com tempo para passear todos os dias.',
     dono: associacaoProtetora,
-    foto: 'assets/animais/thor.jpg',
+    fotos: ['assets/animais/thor.jpg'],
   ),
   Animal(
     nome: 'Mel',
@@ -70,7 +70,7 @@ final List<Animal> animaisMock = [
         'Filhote cheia de energia, acostumada com criança. Ainda está '
         'aprendendo a fazer as necessidades no lugar certo.',
     dono: marinaAlves,
-    foto: 'assets/animais/mel.jpg',
+    fotos: ['assets/animais/mel.jpg'],
   ),
   Animal(
     nome: 'Simba',
@@ -91,8 +91,9 @@ final List<Animal> animaisMock = [
     observacoes:
         'Tranquilo e independente, passa boa parte do dia dormindo no sol. '
         'Indicado para apartamento, desde que as janelas tenham tela.',
+    necessidadesEspeciais: 'Precisa de ração específica para gato castrado',
     dono: associacaoProtetora,
-    foto: 'assets/animais/simba.jpg',
+    fotos: ['assets/animais/simba.jpg'],
   ),
   Animal(
     nome: 'Fred',
@@ -113,7 +114,7 @@ final List<Animal> animaisMock = [
         'Cresceu dentro de casa e não tem costume de rua. Se dá bem com '
         'outros gatos, mas estranha cachorro.',
     dono: marinaAlves,
-    foto: 'assets/animais/fred.jpg',
+    fotos: ['assets/animais/fred.jpg'],
   ),
   Animal(
     nome: 'Bidu',
@@ -131,8 +132,9 @@ final List<Animal> animaisMock = [
     observacoes:
         'Sumiu no bairro Santa Luzia no dia 18 de agosto. Estava de coleira '
         'vermelha e atende pelo nome.',
+    necessidadesEspeciais: 'Toma remédio de uso contínuo para convulsão',
     dono: carlosPereira,
-    foto: 'assets/animais/bidu.jpg',
+    fotos: ['assets/animais/bidu.jpg'],
   ),
   Animal(
     nome: 'Nina',
@@ -151,7 +153,7 @@ final List<Animal> animaisMock = [
         'Vista pela última vez perto da praça do bairro Centro. É medrosa e '
         'costuma se esconder embaixo de carro.',
     dono: joanaRibeiro,
-    foto: 'assets/animais/nina.jpg',
+    fotos: ['assets/animais/nina.jpg'],
   ),
   Animal(
     nome: 'Amora',
@@ -170,7 +172,7 @@ final List<Animal> animaisMock = [
         'Fugiu pela janela no dia 22 de agosto, no bairro São Vicente. '
         'Estava com coleira rosa.',
     dono: beatrizNogueira,
-    foto: 'assets/animais/amora.jpg',
+    fotos: ['assets/animais/amora.jpg'],
   ),
   Animal(
     nome: 'Filhote sem nome',
@@ -189,7 +191,7 @@ final List<Animal> animaisMock = [
         'Encontrado sozinho na avenida perto do posto. Precisa de lar '
         'temporário até conseguir adoção.',
     dono: luanaMartins,
-    foto: 'assets/animais/filhote.jpg',
+    fotos: ['assets/animais/filhote.jpg'],
   ),
   Animal(
     nome: 'Marie',
@@ -208,6 +210,6 @@ final List<Animal> animaisMock = [
         'Filhote encontrada sozinha em um terreno baldio. Precisa de lar '
         'temporário e de acompanhamento veterinário.',
     dono: luanaMartins,
-    foto: 'assets/animais/marie.jpg',
+    fotos: ['assets/animais/marie.jpg'],
   ),
 ];
