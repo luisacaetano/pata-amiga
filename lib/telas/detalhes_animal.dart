@@ -6,7 +6,7 @@ import '../widgets/barra_inferior.dart';
 import '../modelos/dono.dart';
 import '../modelos/animal.dart';
 import '../tema/cores.dart';
-import '../widgets/foto_animal.dart';
+import '../widgets/galeria_animal.dart';
 
 class DetalhesAnimal extends StatelessWidget {
   final Animal animal;
@@ -71,7 +71,7 @@ class DetalhesAnimal extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FotoAnimal(caminho: animal.foto, altura: 280),
+            GaleriaAnimal(fotos: animal.fotos, altura: 280),
             const SizedBox(height: 12),
 
             // cartão: nome + selo + tabelas + saúde + contato

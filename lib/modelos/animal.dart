@@ -40,7 +40,7 @@ class Animal {
   final bool vermifugado;
   final String observacoes;
   final Dono dono;
-  final String foto;
+  final List<String> fotos;
   final DateTime publicadoEm;
   // Salva a localização do aparelho quando a pessoa tocou no botão de localização
   // Fica vazio quando o endereço foi digitado à mão
@@ -65,11 +65,14 @@ class Animal {
     this.vermifugado = false,
     this.observacoes = '',
     required this.dono,
-    this.foto = '',
+    this.fotos = const [],
     required this.publicadoEm,
     this.latitude,
     this.longitude,
   });
+
+  // A capa do animal é a primeira foto
+  String get foto => fotos.isEmpty ? '' : fotos.first;
 
   // Os mapas só conseguem desenhar o animal quando as duas coordenadas existem
   bool get temPonto => latitude != null && longitude != null;
