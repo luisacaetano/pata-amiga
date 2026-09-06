@@ -1,5 +1,9 @@
 import 'dono.dart';
 
+// Os dados chegam em caixa baixa; primeira letra maiúscula
+String comMaiuscula(String texto) =>
+    texto.isEmpty ? texto : texto[0].toUpperCase() + texto.substring(1);
+
 enum TipoRegistro { adocao, perdido, resgate }
 
 extension RotuloTipo on TipoRegistro {
@@ -13,6 +17,18 @@ extension RotuloTipo on TipoRegistro {
         return 'resgate';
     }
   }
+
+  // Titulo do contato
+  String get tituloDoContato => switch (this) {
+    TipoRegistro.adocao => 'Quem responde por ele',
+    TipoRegistro.perdido => 'Quem está procurando',
+    TipoRegistro.resgate => 'Quem encontrou',
+  };
+
+  // Em perdidos o lugar é a última pista, nos outros é onde o animal está
+  String get tituloDoLugar => this == TipoRegistro.perdido
+      ? 'Onde foi visto pela última vez'
+      : 'Onde ele está';
 }
 
 enum StatusAnimal { disponivel, adotado }
@@ -79,7 +95,13 @@ class Animal {
 
   // Descrição curta do animal, exibida embaixo do nome no card do feed.
   String get resumo =>
-      [sexo, 'porte $porte', idade].map(_comMaiuscula).join(' · ');
+      [sexo, 'porte $porte', idade].map(comMaiuscula).join(' · ');
+
+  // Quem é o animal, na linha embaixo do nome na ficha de detalhes
+  String get identidade => [especie, raca, sexo]
+      .where((campo) => campo.trim().isNotEmpty)
+      .map(comMaiuscula)
+      .join(' · ');
 
   // Há quanto tempo o animal foi publicado, no formato que vai no card.
   // Compara só o dia, porque a hora não interessa a quem lê o feed.
@@ -95,7 +117,4 @@ class Animal {
     final meses = dias ~/ 30;
     return meses == 1 ? 'há 1 mês' : 'há $meses meses';
   }
-
-  static String _comMaiuscula(String texto) =>
-      texto.isEmpty ? texto : texto[0].toUpperCase() + texto.substring(1);
 }

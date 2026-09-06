@@ -24,5 +24,10 @@ ThemeData temaPataAmiga() {
       bodyColor: Cores.texto,
       displayColor: Cores.texto,
     ),
+    // Sem isto o Material 3 acinzenta o topo assim que a tela rola
+    appBarTheme: const AppBarTheme(
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+    ),
   );
 }

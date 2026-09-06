@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../widgets/barra_inferior.dart';
-
-import '../modelos/dono.dart';
 import '../modelos/animal.dart';
+import '../modelos/dono.dart';
 import '../tema/cores.dart';
+import '../widgets/barra_inferior.dart';
+import '../widgets/escolha_de_tipo.dart';
 import '../widgets/galeria_animal.dart';
 
 class DetalhesAnimal extends StatelessWidget {
@@ -73,101 +73,7 @@ class DetalhesAnimal extends StatelessWidget {
           children: [
             GaleriaAnimal(fotos: animal.fotos, altura: 280),
             const SizedBox(height: 12),
-
-            // cartão: nome + selo + tabelas + saúde + contato
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Cores.cartao,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Cores.borda),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // nome do animal + selo de status (disponível/adotado)
-                  Row(
-                    children: [
-                      Text(
-                        animal.nome.toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Cores.principalClara,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          animal.status.rotulo,
-                          style: const TextStyle(
-                            color: Cores.principal,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // grade 2x4: espécie/porte, raça/sexo, idade/peso, cor/cidade.
-                  Table(
-                    columnWidths: const {
-                      0: IntrinsicColumnWidth(),
-                      2: IntrinsicColumnWidth(),
-                    },
-                    defaultVerticalAlignment: TableCellVerticalAlignment.top,
-                    children: [
-                      _linhaTabela(
-                        'ESPÉCIE',
-                        animal.especie,
-                        'PORTE',
-                        animal.porte,
-                      ),
-                      _linhaTabela('RAÇA', animal.raca, 'SEXO', animal.sexo),
-                      _linhaTabela('IDADE', animal.idade, 'PESO', animal.peso),
-                      _linhaTabela('COR', animal.cor, 'CIDADE', animal.cidade),
-                    ],
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // selos de cuidado: só aparece o que for true no animal
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      if (animal.castrado) _Selo('castrado'),
-                      if (animal.vacinado) _Selo('vacinado'),
-                      if (animal.vermifugado) _Selo('vermifugado'),
-                    ],
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // responsável, telefone e observações: uma coluna só
-                  Table(
-                    columnWidths: const {0: IntrinsicColumnWidth()},
-                    defaultVerticalAlignment: TableCellVerticalAlignment.top,
-                    children: [
-                      _linhaSimples('RESPONSÁVEL', animal.dono.nome),
-                      _linhaSimples('TELEFONE', animal.dono.telefone),
-                      _linhaSimples('OBS', animal.observacoes),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            _Ficha(animal: animal),
           ],
         ),
       ),
@@ -196,61 +102,268 @@ class DetalhesAnimal extends StatelessWidget {
               ),
             ),
           ),
-          const BarraInferior(),
+          BarraInferior(
+            aoTocar: (indice) {
+              if (indice == 0) {
+                Navigator.maybePop(context);
+              } else {
+                avisarProximaSprint(context);
+              }
+            },
+          ),
         ],
       ),
     );
   }
 }
 
-// uma célula de texto da tabela: se for rótulo, ganha o ":" e o estilo fraco,
-// se for valor, fica com o estilo normal e a linha embaixo.
-Widget _celula(String texto, {bool rotulo = false, bool cortar = false}) =>
-    Padding(
-      padding: const EdgeInsets.only(bottom: 10, right: 10),
-      child: rotulo
-          ? Text(
-              '$texto:',
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Cores.textoFraco,
-              ),
-            )
-          : Container(
-              padding: const EdgeInsets.only(bottom: 2),
-              decoration: const BoxDecoration(
-                border: Border(bottom: BorderSide(color: Cores.borda)),
-              ),
-              child: Text(
-                texto,
-                maxLines: cortar ? 1 : null,
-                overflow: cortar ? TextOverflow.ellipsis : TextOverflow.visible,
-                style: const TextStyle(fontSize: 14),
-              ),
-            ),
-    );
+// A ficha do animal: quem ele é, as medidas, onde está e quem responde por ele
+class _Ficha extends StatelessWidget {
+  final Animal animal;
 
-// uma linha da grade com dois pares rótulo/valor (ex.: espécie e porte)
-TableRow _linhaTabela(
-  String rotulo1,
-  String valor1,
-  String rotulo2,
-  String valor2,
-) {
-  return TableRow(
-    children: [
-      _celula(rotulo1, rotulo: true),
-      _celula(valor1, cortar: true),
-      _celula(rotulo2, rotulo: true),
-      _celula(valor2, cortar: true),
-    ],
+  const _Ficha({required this.animal});
+
+  @override
+  Widget build(BuildContext context) {
+    final medidas = <(String, String)>[
+      ('porte', animal.porte),
+      ('idade', animal.idade),
+      ('peso', animal.peso),
+      ('cor', animal.cor),
+    ].where((medida) => medida.$2.trim().isNotEmpty).toList();
+
+    final cuidados = [
+      if (animal.castrado) 'castrado',
+      if (animal.vacinado) 'vacinado',
+      if (animal.vermifugado) 'vermifugado',
+    ];
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Cores.cartao,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Cores.borda),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // o nome e o tipo do registro, que é o que muda a leitura da ficha
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  animal.nome.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    height: 1.1,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              _Etiqueta(rotuloSingular(animal.tipo)),
+              if (animal.status == StatusAnimal.adotado) ...[
+                const SizedBox(width: 6),
+                _Etiqueta(animal.status.rotulo, cheia: true),
+              ],
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            animal.identidade,
+            style: const TextStyle(color: Cores.textoFraco, fontSize: 14),
+          ),
+
+          if (medidas.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _PainelDeMedidas(medidas: medidas),
+          ],
+
+          if (cuidados.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [for (final cuidado in cuidados) _Selo(cuidado)],
+            ),
+          ],
+
+          const _Divisoria(),
+          _Rotulo(animal.tipo.tituloDoLugar),
+          Row(
+            children: [
+              const Icon(
+                Icons.location_on_outlined,
+                size: 16,
+                color: Cores.principal,
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  '${animal.bairro}, ${animal.cidade}',
+                  style: const TextStyle(
+                    color: Cores.principal,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              Text(
+                animal.publicadoHa(DateTime.now()),
+                style: const TextStyle(color: Cores.textoFraco, fontSize: 13),
+              ),
+            ],
+          ),
+          if (animal.observacoes.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              animal.observacoes,
+              style: const TextStyle(fontSize: 14, height: 1.5),
+            ),
+          ],
+
+          const _Divisoria(),
+          _Rotulo(animal.tipo.tituloDoContato),
+          Text(
+            animal.dono.nome,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            animal.dono.telefone,
+            style: const TextStyle(
+              fontSize: 15,
+              color: Cores.principal,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// As medidas do animal em duas colunas
+class _PainelDeMedidas extends StatelessWidget {
+  final List<(String, String)> medidas;
+
+  const _PainelDeMedidas({required this.medidas});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Cores.fundo,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          for (var linha = 0; linha < medidas.length; linha += 2) ...[
+            if (linha > 0) const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: _Medida(medidas[linha])),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: linha + 1 < medidas.length
+                      ? _Medida(medidas[linha + 1])
+                      : const SizedBox.shrink(),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _Medida extends StatelessWidget {
+  final (String, String) medida;
+
+  const _Medida(this.medida);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          medida.$1.toUpperCase(),
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.8,
+            color: Cores.textoFraco,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          comMaiuscula(medida.$2),
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+        ),
+      ],
+    );
+  }
+}
+
+// O título de um bloco: diz o que vem embaixo, e muda com o tipo do registro
+class _Rotulo extends StatelessWidget {
+  final String texto;
+
+  const _Rotulo(this.texto);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: 6),
+    child: Text(
+      texto,
+      style: const TextStyle(color: Cores.textoFraco, fontSize: 12),
+    ),
   );
 }
 
-// uma linha com um único par rótulo/valor (ex: responsável)
-TableRow _linhaSimples(String rotulo, String valor) {
-  return TableRow(children: [_celula(rotulo, rotulo: true), _celula(valor)]);
+// Separa os blocos da ficha, na mesma linha fina do card do feed
+class _Divisoria extends StatelessWidget {
+  const _Divisoria();
+
+  @override
+  Widget build(BuildContext context) => const Padding(
+    padding: EdgeInsets.symmetric(vertical: 14),
+    child: Divider(height: 1, thickness: 1, color: Cores.borda),
+  );
+}
+
+// etiqueta ao lado do nome: o tipo do registro, e o adotado quando for o caso
+class _Etiqueta extends StatelessWidget {
+  final String texto;
+  final bool cheia;
+
+  const _Etiqueta(this.texto, {this.cheia = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: cheia ? Cores.principal : Cores.principalClara,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        comMaiuscula(texto),
+        style: TextStyle(
+          color: cheia ? Colors.white : Cores.principal,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
 }
 
 // selo verde de "cuidado" (castrado/vacinado/vermifugado), com ícone de check
@@ -272,7 +385,7 @@ class _Selo extends StatelessWidget {
           const Icon(Icons.check_circle, size: 14, color: Cores.principal),
           const SizedBox(width: 4),
           Text(
-            texto,
+            comMaiuscula(texto),
             style: const TextStyle(
               color: Cores.principal,
               fontSize: 12,

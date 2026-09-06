@@ -22,15 +22,9 @@ String _exemploDeObservacoes(TipoRegistro tipo) => switch (tipo) {
   TipoRegistro.resgate => 'Onde está, em que estado, se corre risco',
 };
 
-String _tituloDoContato(TipoRegistro tipo) => switch (tipo) {
-  TipoRegistro.adocao => 'Quem responde por ele',
-  TipoRegistro.perdido => 'Quem está procurando',
-  TipoRegistro.resgate => 'Quem encontrou',
-};
-
-String _tituloDoLugar(TipoRegistro? tipo) => tipo == TipoRegistro.perdido
-    ? 'Onde foi visto pela última vez'
-    : 'Onde ele está';
+// Sem tipo escolhido o cartão do lugar já existe, e usa o texto do caso comum
+String _tituloDoLugar(TipoRegistro? tipo) =>
+    (tipo ?? TipoRegistro.adocao).tituloDoLugar;
 
 const _nomePadrao = 'Sem nome';
 const _maximoDeFotos = 5;
@@ -432,7 +426,7 @@ class _CadastroAnimalState extends State<CadastroAnimal> {
                   children: [
                     _TituloDoCartao(
                       icone: Icons.person_outline,
-                      texto: _tituloDoContato(_tipo!),
+                      texto: _tipo!.tituloDoContato,
                     ),
                     const SizedBox(height: 16),
                     _Campo(
