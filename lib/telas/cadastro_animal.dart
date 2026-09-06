@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import '../modelos/animal.dart';
 import '../tema/cores.dart';
 import '../widgets/barra_inferior.dart';
+import '../widgets/cuidado.dart';
 import '../widgets/escolha_de_tipo.dart';
 import '../widgets/foto_animal.dart';
 
@@ -967,26 +968,7 @@ class _Cuidado extends StatelessWidget {
       child: GestureDetector(
         onTap: () => aoMarcar(!marcado),
         behavior: HitTestBehavior.opaque,
-        child: Container(
-          height: 40,
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          decoration: BoxDecoration(
-            color: marcado ? Cores.principalClara : Cores.fundo,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: marcado ? Cores.principal : Cores.borda),
-          ),
-          child: Text(
-            rotulo,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: marcado ? Cores.principal : Cores.textoFraco,
-            ),
-          ),
-        ),
+        child: Cuidado(rotulo: rotulo, marcado: marcado),
       ),
     );
   }

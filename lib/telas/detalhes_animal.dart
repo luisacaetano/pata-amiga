@@ -5,6 +5,7 @@ import '../modelos/animal.dart';
 import '../modelos/dono.dart';
 import '../tema/cores.dart';
 import '../widgets/barra_inferior.dart';
+import '../widgets/cuidado.dart';
 import '../widgets/escolha_de_tipo.dart';
 import '../widgets/galeria_animal.dart';
 
@@ -183,11 +184,24 @@ class _Ficha extends StatelessWidget {
 
           if (cuidados.isNotEmpty) ...[
             const SizedBox(height: 14),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [for (final cuidado in cuidados) _Selo(cuidado)],
+            Row(
+              children: [
+                for (var indice = 0; indice < cuidados.length; indice++) ...[
+                  if (indice > 0) const SizedBox(width: 8),
+                  Expanded(
+                    child: Cuidado(
+                      rotulo: comMaiuscula(cuidados[indice]),
+                      marcado: true,
+                    ),
+                  ),
+                ],
+              ],
             ),
+          ],
+
+          if (animal.necessidadesEspeciais.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _NecessidadesEspeciais(animal.necessidadesEspeciais),
           ],
 
           const _Divisoria(),
@@ -366,34 +380,36 @@ class _Etiqueta extends StatelessWidget {
   }
 }
 
-// selo verde de "cuidado" (castrado/vacinado/vermifugado), com ícone de check
-class _Selo extends StatelessWidget {
+// O que este animal precisa e os outros não, logo abaixo dos selos de cuidado.
+// Sem rótulo em caixa alta, que na ficha é o que abre bloco novo
+class _NecessidadesEspeciais extends StatelessWidget {
   final String texto;
-  const _Selo(this.texto);
+
+  const _NecessidadesEspeciais(this.texto);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: Cores.principalClara,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.check_circle, size: 14, color: Cores.principal),
-          const SizedBox(width: 4),
-          Text(
-            comMaiuscula(texto),
-            style: const TextStyle(
-              color: Cores.principal,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          // desce o ícone para ele sentar na primeira linha do texto
+          padding: EdgeInsets.only(top: 2),
+          child: Icon(
+            Icons.medical_services_outlined,
+            size: 16,
+            color: Cores.principal,
+            semanticLabel: 'Necessidades especiais',
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            comMaiuscula(texto),
+            style: const TextStyle(fontSize: 14, height: 1.4),
+          ),
+        ),
+      ],
     );
   }
 }

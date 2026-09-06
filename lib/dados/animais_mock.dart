@@ -25,8 +25,8 @@ final List<Animal> animaisMock = [
     vacinado: true,
     vermifugado: true,
     observacoes:
-        'Convive bem com outros cachorros e já está acostumada com casa. '
-        'Sente frio, precisa de roupinha no inverno.',
+        'Convive bem com outros cachorros e já está acostumada com casa.',
+    necessidadesEspeciais: 'Sente frio e precisa de roupinha no inverno',
     dono: associacaoProtetora,
     fotos: ['assets/animais/dora.jpg'],
   ),
@@ -91,6 +91,7 @@ final List<Animal> animaisMock = [
     observacoes:
         'Tranquilo e independente, passa boa parte do dia dormindo no sol. '
         'Indicado para apartamento, desde que as janelas tenham tela.',
+    necessidadesEspeciais: 'Precisa de ração específica para gato castrado',
     dono: associacaoProtetora,
     fotos: ['assets/animais/simba.jpg'],
   ),
@@ -131,6 +132,7 @@ final List<Animal> animaisMock = [
     observacoes:
         'Sumiu no bairro Santa Luzia no dia 18 de agosto. Estava de coleira '
         'vermelha e atende pelo nome.',
+    necessidadesEspeciais: 'Toma remédio de uso contínuo para convulsão',
     dono: carlosPereira,
     fotos: ['assets/animais/bidu.jpg'],
   ),

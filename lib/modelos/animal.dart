@@ -55,6 +55,8 @@ class Animal {
   final bool vacinado;
   final bool vermifugado;
   final String observacoes;
+  // O que esse animal precisa e os outros não: remédio contínuo, dieta, deficiência
+  final String necessidadesEspeciais;
   final Dono dono;
   final List<String> fotos;
   final DateTime publicadoEm;
@@ -80,6 +82,7 @@ class Animal {
     this.vacinado = false,
     this.vermifugado = false,
     this.observacoes = '',
+    this.necessidadesEspeciais = '',
     required this.dono,
     this.fotos = const [],
     required this.publicadoEm,
