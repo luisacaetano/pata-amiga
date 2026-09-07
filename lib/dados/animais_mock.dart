@@ -28,7 +28,13 @@ final List<Animal> animaisMock = [
         'Convive bem com outros cachorros e já está acostumada com casa.',
     necessidadesEspeciais: 'Sente frio e precisa de roupinha no inverno',
     dono: associacaoProtetora,
-    fotos: ['assets/animais/dora.jpg'],
+    fotos: [
+      'assets/animais/dora-1.jpg',
+      'assets/animais/dora-2.jpg',
+      'assets/animais/dora-3.jpg',
+      'assets/animais/dora-4.jpg',
+      'assets/animais/dora-5.jpg',
+    ],
   ),
   Animal(
     nome: 'Thor',
@@ -49,7 +55,13 @@ final List<Animal> animaisMock = [
         'Muito ativo e obediente. Precisa de espaço para correr e de alguém '
         'com tempo para passear todos os dias.',
     dono: associacaoProtetora,
-    fotos: ['assets/animais/thor.jpg'],
+    fotos: [
+      'assets/animais/thor-1.jpg',
+      'assets/animais/thor-2.jpg',
+      'assets/animais/thor-3.jpg',
+      'assets/animais/thor-4.jpg',
+      'assets/animais/thor-5.jpg',
+    ],
   ),
   Animal(
     nome: 'Mel',
@@ -70,7 +82,13 @@ final List<Animal> animaisMock = [
         'Filhote cheia de energia, acostumada com criança. Ainda está '
         'aprendendo a fazer as necessidades no lugar certo.',
     dono: marinaAlves,
-    fotos: ['assets/animais/mel.jpg'],
+    fotos: [
+      'assets/animais/mel-1.jpg',
+      'assets/animais/mel-2.jpg',
+      'assets/animais/mel-3.jpg',
+      'assets/animais/mel-4.jpg',
+      'assets/animais/mel-5.jpg',
+    ],
   ),
   Animal(
     nome: 'Simba',
@@ -93,7 +111,13 @@ final List<Animal> animaisMock = [
         'Indicado para apartamento, desde que as janelas tenham tela.',
     necessidadesEspeciais: 'Precisa de ração específica para gato castrado',
     dono: associacaoProtetora,
-    fotos: ['assets/animais/simba.jpg'],
+    fotos: [
+      'assets/animais/simba-1.jpg',
+      'assets/animais/simba-2.jpg',
+      'assets/animais/simba-3.jpg',
+      'assets/animais/simba-4.jpg',
+      'assets/animais/simba-5.jpg',
+    ],
   ),
   Animal(
     nome: 'Fred',
@@ -114,7 +138,13 @@ final List<Animal> animaisMock = [
         'Cresceu dentro de casa e não tem costume de rua. Se dá bem com '
         'outros gatos, mas estranha cachorro.',
     dono: marinaAlves,
-    fotos: ['assets/animais/fred.jpg'],
+    fotos: [
+      'assets/animais/fred-1.jpg',
+      'assets/animais/fred-2.jpg',
+      'assets/animais/fred-3.jpg',
+      'assets/animais/fred-4.jpg',
+      'assets/animais/fred-5.jpg',
+    ],
   ),
   Animal(
     nome: 'Bidu',
@@ -134,7 +164,13 @@ final List<Animal> animaisMock = [
         'vermelha e atende pelo nome.',
     necessidadesEspeciais: 'Toma remédio de uso contínuo para convulsão',
     dono: carlosPereira,
-    fotos: ['assets/animais/bidu.jpg'],
+    fotos: [
+      'assets/animais/bidu-1.jpg',
+      'assets/animais/bidu-2.jpg',
+      'assets/animais/bidu-3.jpg',
+      'assets/animais/bidu-4.jpg',
+      'assets/animais/bidu-5.jpg',
+    ],
   ),
   Animal(
     nome: 'Nina',
@@ -153,7 +189,13 @@ final List<Animal> animaisMock = [
         'Vista pela última vez perto da praça do bairro Centro. É medrosa e '
         'costuma se esconder embaixo de carro.',
     dono: joanaRibeiro,
-    fotos: ['assets/animais/nina.jpg'],
+    fotos: [
+      'assets/animais/nina-1.jpg',
+      'assets/animais/nina-2.jpg',
+      'assets/animais/nina-3.jpg',
+      'assets/animais/nina-4.jpg',
+      'assets/animais/nina-5.jpg',
+    ],
   ),
   Animal(
     nome: 'Amora',
@@ -172,7 +214,13 @@ final List<Animal> animaisMock = [
         'Fugiu pela janela no dia 22 de agosto, no bairro São Vicente. '
         'Estava com coleira rosa.',
     dono: beatrizNogueira,
-    fotos: ['assets/animais/amora.jpg'],
+    fotos: [
+      'assets/animais/amora-1.jpg',
+      'assets/animais/amora-2.jpg',
+      'assets/animais/amora-3.jpg',
+      'assets/animais/amora-4.jpg',
+      'assets/animais/amora-5.jpg',
+    ],
   ),
   Animal(
     nome: 'Filhote sem nome',
@@ -191,7 +239,13 @@ final List<Animal> animaisMock = [
         'Encontrado sozinho na avenida perto do posto. Precisa de lar '
         'temporário até conseguir adoção.',
     dono: luanaMartins,
-    fotos: ['assets/animais/filhote.jpg'],
+    fotos: [
+      'assets/animais/filhote-1.jpg',
+      'assets/animais/filhote-2.jpg',
+      'assets/animais/filhote-3.jpg',
+      'assets/animais/filhote-4.jpg',
+      'assets/animais/filhote-5.jpg',
+    ],
   ),
   Animal(
     nome: 'Marie',
@@ -210,6 +264,12 @@ final List<Animal> animaisMock = [
         'Filhote encontrada sozinha em um terreno baldio. Precisa de lar '
         'temporário e de acompanhamento veterinário.',
     dono: luanaMartins,
-    fotos: ['assets/animais/marie.jpg'],
+    fotos: [
+      'assets/animais/marie-1.jpg',
+      'assets/animais/marie-2.jpg',
+      'assets/animais/marie-3.jpg',
+      'assets/animais/marie-4.jpg',
+      'assets/animais/marie-5.jpg',
+    ],
   ),
 ];
